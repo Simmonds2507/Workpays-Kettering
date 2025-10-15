@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Jobs Board (Kettering)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Proxima Nova via Adobe Fonts (Typekit) or use a close fallback if not available -->
+  <link rel="stylesheet" href="https://use.typekit.net/af/6d73f0/00000000000000003b9b0f8b/30/l?subset_id=2&fvd=n7&v=3" crossorigin="anonymous">
+  <style>
+    :root {
+      --proxima: 'proxima-nova', 'Proxima Nova', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #e30613;
+      color: #fff !important;
+      font-family: var(--proxima);
+    }
+    body, .container {
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #e30613;
+      font-family: var(--proxima);
+      color: #fff !important;
+    }
+    .container {
+      background: #e30613;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      font-family: var(--proxima);
+      color: #fff !important;
+    }
+    .clock {
+      position: absolute;
+      top: 16px;
+      left: 24px;
+      font-size: 2em;
+      color: #fff;
+      text-align: left;
+      letter-spacing: 2px;
+      z-index: 10;
+      background: rgba(227,6,19,0.18);
+      padding: 6px 18px;
+      border-radius: 8px;
+      min-width: 220px;
+      font-variant-numeric: tabular-nums;
+      user-select: none;
+      border: 1px solid #fff2;
+      box-shadow: 0 2px 6px #0002;
+      font-family: var(--proxima);
+    }
+    h2 {
+      margin-top: 54px;
+      color: #fff;
+      font-size: 2.5em;
+      text-align: center;
+      width: 100%;
+      font-family: var(--proxima);
+    }
+    .subtitle {
+      font-size:1.3em;
+      font-weight:normal;
+      color:#fff;
+      display:block;
+      margin-top: 0.2em;
+      margin-bottom: 0.8em;
+      font-family: var(--proxima);
+    }
+    .jobs-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: stretch;
+      gap: 2vw;
+      width: 100vw;
+      margin-top: 30px;
+    }
+    .job-card {
+      background: #b2d235; /* Green background for the job box - Hex: #b2d235 Pantone 390 CP */
+      border-radius: 18px;
+      padding: 30px 24px;
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 240px;
+      max-width: 420px;
+      box-shadow: 0 2px 16px #0001;
+      font-size: 1.15em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center; /* Center horizontally */
+      color: #fff !important;
+      font-family: var(--proxima);
+      text-align: center; /* Center text in the box */
+      border: 1px solid #fff2;
+      transition: box-shadow 0.3s;
+    }
+    .salary { font-weight: bold; color: #fff; font-size:1.1em; font-family: var(--proxima);}
+    .job-date { font-size: 1em; color: #fff; margin-top: 14px; font-family: var(--proxima);}
+    .last-updated {
+      font-size: 1.1em;
+      color: #fff;
+      margin-top: 20px;
+      text-align: center;
+      width: 100vw;
+      font-family: var(--proxima);
+    }
+    .job-link { text-decoration: none; color: #fff; font-size:1.2em; font-family: var(--proxima);}
+    .job-link:hover { text-decoration: underline; }
+    .company {color:#fff; font-family: var(--proxima);}
+    @media (max-width: 1100px) {
+      .jobs-row { flex-direction: column; gap: 18px; align-items: center;}
+      .job-card { width: 90vw; max-width: 98vw; }
+    }
+    @media (max-width: 900px) {
+      .job-card { font-size: 1.03em; }
+      h2 { font-size: 1.5em; }
+      .subtitle { font-size: 1em; }
+      .clock { font-size: 1em; min-width: 135px;}
+    }
+    @media (max-width: 600px) {
+      .job-card { padding: 12px 2vw; font-size: 0.96em; }
+      .jobs-row { gap: 12px; }
+      h2 { font-size: 1.1em; }
+      .subtitle { font-size: .9em; }
+    }
+    @media (max-width: 500px) {
+      .job-card { min-width: 0; width: 100vw; font-size: 0.9em;}
+      .clock { font-size: 0.9em; min-width: 95px; left: 6px; top: 6px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock"></div>
+  <div class="container">
+    <h2>
+      Live Jobs Board
+      <span class="subtitle">within 10 miles of Kettering</span>
+    </h2>
+    <div id="jobs-content">
+      <div class="jobs-row">
+        <div class="job-card">Loading...</div>
+        <div class="job-card"></div>
+        <div class="job-card"></div>
+      </div>
+    </div>
+    <div class="last-updated" id="last-updated"></div>
+  </div>
+  <script>
+    // Adzuna credentials
+    const ADZUNA_APP_ID = 'f408a136';
+    const ADZUNA_APP_KEY = 'f667a34c2905f2da4e3b56b8971200d2';
+
+    function buildAdzunaUrl() {
+      // 'where' = Kettering, 'distance' = 10 miles, salary_min=0, salary_max=40000
+      return `https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=${ADZUNA_APP_ID}&app_key=${ADZUNA_APP_KEY}` +
+        `&results_per_page=30&where=Kettering&distance=10&sort_by=date&salary_min=0&salary_max=40000`;
+    }
+
+    const jobsContent = document.getElementById('jobs-content');
+    const lastUpdated = document.getElementById('last-updated');
+    const clock = document.getElementById('clock');
+
+    let jobs = [];
+    let pageIndex = 0;
+    let cycleIntervalId = null;
+    let refreshIntervalId = null;
+
+    function renderJobs() {
+      // Show 3 jobs starting from pageIndex*3
+      let rowHtml = '<div class="jobs-row">';
+      for (let i = 0; i < 3; i++) {
+        const idx = pageIndex * 3 + i;
+        if (jobs[idx]) {
+          const job = jobs[idx];
+          rowHtml += `
+            <div class="job-card">
+              <a class="job-link" href="${job.redirect_url}" target="_blank" rel="noopener noreferrer">
+                <strong>${job.title}</strong>
+              </a>
+              <div style="margin: 15px 0 10px 0;">
+                at <span class="company">${job.company?.display_name || 'Unknown Company'}</span>
+              </div>
+              <div>
+                <small>${job.location?.display_name || ''}</small>
+              </div>
+              <div class="salary">
+                Salary: ${
+                  job.salary_min && job.salary_max
+                    ? `£${job.salary_min.toLocaleString()} – £${job.salary_max.toLocaleString()}`
+                    : 'Not specified'
+                }
+              </div>
+              <div class="job-date">
+                Posted: ${job.created ? new Date(job.created).toLocaleString() : 'Unknown'}
+              </div>
+            </div>
+          `;
+        } else {
+          // Empty card for layout consistency
+          rowHtml += `<div class="job-card"></div>`;
+        }
+      }
+      rowHtml += '</div>';
+      jobsContent.innerHTML = rowHtml;
+    }
+
+    async function fetchJobs() {
+      // Show loading cards
+      jobsContent.innerHTML = `
+        <div class="jobs-row">
+          <div class="job-card">Loading...</div>
+          <div class="job-card"></div>
+          <div class="job-card"></div>
+        </div>
+      `;
+      try {
+        const url = buildAdzunaUrl();
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch jobs');
+        const data = await response.json();
+        jobs = data.results || [];
+        pageIndex = 0;
+        renderJobs();
+      } catch (error) {
+        jobs = [];
+        pageIndex = 0;
+        jobsContent.innerHTML = `
+          <div class="jobs-row">
+            <div class="job-card">No jobs found.</div>
+            <div class="job-card"></div>
+            <div class="job-card"></div>
+          </div>
+        `;
+      }
+      updateLastUpdated();
+    }
+
+    function startJobCycling() {
+      if (cycleIntervalId) clearInterval(cycleIntervalId);
+      cycleIntervalId = setInterval(() => {
+        if (jobs.length > 0) {
+          pageIndex = (pageIndex + 1) % Math.ceil(jobs.length / 3);
+          renderJobs();
+        }
+      }, 10000);
+    }
+
+    function startAutoRefresh() {
+      if (refreshIntervalId) clearInterval(refreshIntervalId);
+      refreshIntervalId = setInterval(() => {
+        fetchJobs();
+      }, 300000); // every 5 minutes
+    }
+
+    function updateLastUpdated() {
+      const now = new Date();
+      lastUpdated.textContent = 'Last updated: ' + now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString() + ' | ' + now.toLocaleDateString();
+    }
+
+    // Initial fetch and start intervals
+    fetchJobs();
+    startJobCycling();
+    startAutoRefresh();
+
+    // Update clock every second
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Optional: Refresh page every 8 hours to prevent memory leaks if left running long-term
+    setTimeout(() => location.reload(), 8 * 60 * 60 * 1000);
+  </script>
+</body>
+</html>
