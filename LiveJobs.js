@@ -1,0 +1,128 @@
+import React, { useState, useEffect } from 'react';
+
+// Replace with your Adzuna app_id and app_key
+const ADZUNA_APP_ID = 'f408a136';
+const ADZUNA_APP_KEY = 'f667a34c2905f2da4e3b56b8971200d2';
+
+// Helper to build API URL with salary range
+const buildAdzunaUrl = (minSalary, maxSalary) =>
+  `https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=${ADZUNA_APP_ID}&app_key=${ADZUNA_APP_KEY}` +
+  `&results_per_page=10&where=NN16+8JX&distance=10&sort_by=date&salary_min=${minSalary}&salary_max=${maxSalary}`;
+
+function LiveJobsBoard() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  // Salary form state
+  const [minSalary, setMinSalary] = useState(0);
+  const [maxSalary, setMaxSalary] = useState(35000);
+
+  // Used to trigger data refresh on form submit
+  const [salarySearchParams, setSalarySearchParams] = useState({ min: 0, max: 35000 });
+
+  const fetchJobs = async (min, max) => {
+    setLoading(true);
+    try {
+      const response = await fetch(buildAdzunaUrl(min, max));
+      if (!response.ok) throw new Error('Failed to fetch jobs');
+      const data = await response.json();
+      setJobs(data.results || []);
+      setLastUpdated(new Date());
+    } catch (error) {
+      setJobs([]);
+      setLastUpdated(new Date());
+    }
+    setLoading(false);
+  };
+
+  // Fetch jobs on mount and whenever salarySearchParams change, also set up interval
+  useEffect(() => {
+    fetchJobs(salarySearchParams.min, salarySearchParams.max);
+    const intervalId = setInterval(() => {
+      fetchJobs(salarySearchParams.min, salarySearchParams.max);
+    }, 300000); // 5 minutes
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line
+  }, [salarySearchParams]);
+
+  // Handle form submission
+  const handleSalarySubmit = (e) => {
+    e.preventDefault();
+    let min = Number(minSalary);
+    let max = Number(maxSalary);
+    if (min < 0) min = 0;
+    if (max > 35000) max = 35000;
+    if (min > max) min = max;
+    setSalarySearchParams({ min, max });
+  };
+
+  return (
+    <div style={{ color: 'white' }}>
+      <h2>Live Jobs Board (within 10 miles of NN16 8JX)</h2>
+      <form onSubmit={handleSalarySubmit} style={{ marginBottom: 20 }}>
+        <label>
+          Min Salary (£):
+          <input
+            type="number"
+            min={0}
+            max={35000}
+            step={1000}
+            value={minSalary}
+            onChange={e => setMinSalary(e.target.value)}
+            style={{ margin: '0 10px' }}
+          />
+        </label>
+        <label>
+          Max Salary (£):
+          <input
+            type="number"
+            min={0}
+            max={35000}
+            step={1000}
+            value={maxSalary}
+            onChange={e => setMaxSalary(e.target.value)}
+            style={{ margin: '0 10px' }}
+          />
+        </label>
+        <button type="submit">Search</button>
+      </form>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : jobs.length === 0 ? (
+        <p>No jobs found.</p>
+      ) : (
+        <ul>
+          {jobs.map(job => (
+            <li key={job.id} style={{ marginBottom: 12 }}>
+              <a href={job.redirect_url} target="_blank" rel="noopener noreferrer">
+                <strong>{job.title}</strong>
+              </a> at {job.company?.display_name || 'Unknown Company'}
+              <br />
+              <small>{job.location?.display_name}</small>
+              <br />
+              {job.salary_min && job.salary_max ? (
+                <span>
+                  <b>Salary:</b> £{job.salary_min.toLocaleString()} – £{job.salary_max.toLocaleString()}
+                </span>
+              ) : (
+                <span><b>Salary:</b> Not specified</span>
+              )}
+              {job.created && (
+                <div style={{ fontSize: '0.85em', color: '#888' }}>
+                  Posted: {new Date(job.created).toLocaleString()}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p style={{ fontSize: '0.85em', color: '#888' }}>
+        Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '...'}
+      </p>
+    </div>
+  );
+}
+
+export default LiveJobsBoard;
